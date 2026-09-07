@@ -9,8 +9,8 @@ import '../../home/models/product.dart';
 import '../../home/screens/product_detail_screen.dart';
 import '../../home/services/product_service.dart';
 
-class CartScreen extends StatelessWidget {
-  const CartScreen({super.key});
+class MyListScreen extends StatelessWidget {
+  const MyListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,6 @@ class CartScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(height: 80),
               ],
             ),
           );

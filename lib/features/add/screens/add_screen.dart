@@ -19,14 +19,14 @@ import '../../home/services/product_service.dart';
 /// upload), then the entry — including the URL Cloudinary returns — is
 /// written to Firestore. Nothing is saved until both steps succeed, so
 /// a failed upload never leaves an entry with a broken cover.
-class SellScreen extends StatefulWidget {
-  const SellScreen({super.key});
+class AddScreen extends StatefulWidget {
+  const AddScreen({super.key});
 
   @override
-  State<SellScreen> createState() => _SellScreenState();
+  State<AddScreen> createState() => _AddScreenState();
 }
 
-class _SellScreenState extends State<SellScreen> {
+class _AddScreenState extends State<AddScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleEnController = TextEditingController();
   final _titleKhController = TextEditingController();
@@ -166,11 +166,6 @@ class _SellScreenState extends State<SellScreen> {
               children: [
                 _VisibilityHint(uid: AuthService.instance.currentUser?.uid),
                 const SizedBox(height: AppDimensions.paddingS),
-                // Fixed 16:9 ratio so the cover always renders at a
-                // consistent, un-squished size regardless of the
-                // source photo's own aspect ratio or the screen width
-                // — previously a flat 140px height forced tall/portrait
-                // covers into a badly cropped sliver.
                 GestureDetector(
                   onTap: _submitting ? null : _pickImage,
                   child: AspectRatio(
@@ -312,10 +307,6 @@ class _SellScreenState extends State<SellScreen> {
     );
   }
 }
-
-/// Tells the uploader up front whether what they're about to add will
-/// be public or private to them, based on their live [UserRole] — so
-/// there's no surprise after hitting "Add Entry".
 class _VisibilityHint extends StatelessWidget {
   final String? uid;
 

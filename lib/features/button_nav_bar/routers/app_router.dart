@@ -49,9 +49,9 @@ class AppRouter {
       case AppRoutes.categories:
         return MaterialPageRoute(builder: (_) => const CategoriesScreen());
       case AppRoutes.sell:
-        return MaterialPageRoute(builder: (_) => const SellScreen());
+        return MaterialPageRoute(builder: (_) => const AddScreen());
       case AppRoutes.cart:
-        return MaterialPageRoute(builder: (_) => const CartScreen());
+        return MaterialPageRoute(builder: (_) => const MyListScreen());
       case AppRoutes.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       default:
