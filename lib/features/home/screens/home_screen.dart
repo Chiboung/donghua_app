@@ -21,53 +21,62 @@ class HomeScreen extends StatelessWidget {
     final uid = AuthService.instance.currentUser?.uid;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: const GlassAppBar(title: 'Home'),
-      body: StreamBuilder<List<Product>>(
-        stream: ProductService.instance.watchVisibleProducts(uid),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.paddingL),
-                child: Text(
-                  'Couldn\'t load listings: ${snapshot.error}',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textSecondary(context)),
-                ),
-              ),
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      //appBar: const GlassAppBar(title: 'Home'),
+      body: Column(
+        children: [
+        // ២. យក GlassAppBar មកដាក់ជា Custom Top Bar នៅក្នុង Column វិញ
+          const GlassAppBar(title: 'Home'), 
+        
+          Expanded(
+            child: StreamBuilder<List<Product>>(
+              stream: ProductService.instance.watchVisibleProducts(uid),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppDimensions.paddingL),
+                      child: Text(
+                        'Couldn\'t load listings: ${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyMedium
+                            .copyWith(color: AppColors.textSecondary(context)),
+                      ),
+                    ),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          final products = snapshot.data!;
-          if (products.isEmpty) {
-            return Center(
-              child: Text(
-                'No listings yet — be the first to add something!',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textSecondary(context)),
-              ),
-            );
-          }
+                final products = snapshot.data!;
+                if (products.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No listings yet — be the first to add something!',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: AppColors.textSecondary(context)),
+                    ),
+                  );
+                }
 
-          return ResponsiveProductGrid(
-            padding: const EdgeInsets.fromLTRB(
-              AppDimensions.paddingM,
-              AppDimensions.paddingM,
-              AppDimensions.paddingM,
-              // Extra room so the last row clears the floating nav pill.
-              96,
+                return ResponsiveProductGrid(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppDimensions.paddingM,
+                    AppDimensions.paddingM,
+                    AppDimensions.paddingM,
+                    // Extra room so the last row clears the floating nav pill.
+                    96,
+                  ),
+                  itemCount: products.length,
+                  imageAspectRatio: 2 / 3,
+                  fixedContentExtent: 100,
+                  itemBuilder: (context, index) => _ProductCard(product: products[index]),
+                );
+              },
             ),
-            itemCount: products.length,
-            imageAspectRatio: 2 / 3,
-            fixedContentExtent: 100,
-            itemBuilder: (context, index) => _ProductCard(product: products[index]),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
