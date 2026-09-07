@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // users/{uid} — holds each account's role ('user' | 'admin').
+    match /users/{uid} {
+      // A user can read their own role doc (needed for fetchRole/watchRole).
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      // ensureUserDocument() creates this doc once, on first sign-in,
+      // always with role 'user' — never lets a client set itself to admin.
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.role == 'user';
+
+      // No client-side updates/deletes — promoting to admin is an
+      // out-of-band action (Firebase console or a secured admin tool).
+      allow update, delete: if false;
+    }
+
+    // products/{id} — public (admin-uploaded) or private-to-uploader entries.
+    match /products/{id} {
+      // Public entries are visible to everyone; private entries only
+      // to their uploader.
+      allow read: if resource.data.uploaderRole == 'admin'
+        || (request.auth != null && resource.data.uploaderId == request.auth.uid);
+
+      // On create: must be signed in, must stamp themselves as the
+      // uploader, and the role they claim must match their real role
+      // in /users/{uid} — so a modified client can't self-promote to
+      // 'admin' just by sending that string.
+      allow create: if request.auth != null
+        && request.resource.data.uploaderId == request.auth.uid
+        && request.resource.data.uploaderRole ==
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+
+      // On update: only the original uploader, and they can't change
+      // uploaderId/uploaderRole/createdAt (matches toUpdateFirestore()).
+      allow update: if request.auth != null
+        && resource.data.uploaderId == request.auth.uid
+        && request.resource.data.uploaderId == resource.data.uploaderId
+        && request.resource.data.uploaderRole == resource.data.uploaderRole
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if request.auth != null
+        && resource.data.uploaderId == request.auth.uid;
+    }
+  }
+}
