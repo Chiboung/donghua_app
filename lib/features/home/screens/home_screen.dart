@@ -63,13 +63,6 @@ class HomeScreen extends StatelessWidget {
               96,
             ),
             itemCount: products.length,
-            // Cell height = (column width / 9:16) + the text block's
-            // fixed height below the cover (see _ProductCard: paddingS
-            // top/bottom + title line + Khmer title line + paddingXS +
-            // episode line, with some headroom for larger font scales).
-            // Computed from real content instead of a single guessed
-            // aspect ratio so it doesn't overflow at narrow column
-            // widths (see ResponsiveProductGrid).
             imageAspectRatio: 2 / 3,
             fixedContentExtent: 100,
             itemBuilder: (context, index) => _ProductCard(product: products[index]),
