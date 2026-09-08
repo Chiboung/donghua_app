@@ -14,11 +14,6 @@ import '../../home/models/product.dart';
 import '../../home/services/product_service.dart';
 
 /// Add tab: form for cataloging a new donghua/anime entry.
-///
-/// On submit: the picked cover image goes to Cloudinary first (unsigned
-/// upload), then the entry — including the URL Cloudinary returns — is
-/// written to Firestore. Nothing is saved until both steps succeed, so
-/// a failed upload never leaves an entry with a broken cover.
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
 
@@ -150,163 +145,174 @@ class _AddScreenState extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: const GlassAppBar(title: 'Add an Entry'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AppDimensions.paddingM,
-          AppDimensions.paddingM,
-          AppDimensions.paddingM,
-          96,
-        ),
-        child: GlassContainer(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _VisibilityHint(uid: AuthService.instance.currentUser?.uid),
-                const SizedBox(height: AppDimensions.paddingS),
-                GestureDetector(
-                  onTap: _submitting ? null : _pickImage,
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: AppColors.glassFill(context),
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-                        border: Border.all(color: AppColors.glassBorder(context)),
-                      ),
-                      child: _pickedImageBytes != null
-                          ? Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.memory(_pickedImageBytes!, fit: BoxFit.cover),
-                                Positioned(
-                                  right: 8,
-                                  bottom: 8,
-                                  child: CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: Colors.black54,
-                                    child: IconButton(
-                                      padding: EdgeInsets.zero,
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        size: 16,
-                                        color: Colors.white,
+      body: Column(
+        children: [
+          // Glass Header 
+          const GlassAppBar(title: 'Add an Entry'),
+
+          // Main Scrollable Form Content
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppDimensions.paddingM,
+                AppDimensions.paddingM,
+                AppDimensions.paddingM,
+                110, // ផុតពី Floating Bottom Nav Bar
+              ),
+              child: GlassContainer(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _VisibilityHint(uid: AuthService.instance.currentUser?.uid),
+                      const SizedBox(height: AppDimensions.paddingS),
+                      GestureDetector(
+                        onTap: _submitting ? null : _pickImage,
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Container(
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(
+                              color: AppColors.glassFill(context),
+                              borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                              border: Border.all(color: AppColors.glassBorder(context)),
+                            ),
+                            child: _pickedImageBytes != null
+                                ? Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Image.memory(_pickedImageBytes!, fit: BoxFit.cover),
+                                      Positioned(
+                                        right: 8,
+                                        bottom: 8,
+                                        child: CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor: Colors.black54,
+                                          child: IconButton(
+                                            padding: EdgeInsets.zero,
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                            onPressed: _submitting ? null : _pickImage,
+                                          ),
+                                        ),
                                       ),
-                                      onPressed: _submitting ? null : _pickImage,
+                                    ],
+                                  )
+                                : Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.add_a_photo_outlined,
+                                          size: 40,
+                                          color: AppColors.textHint(context),
+                                        ),
+                                        const SizedBox(height: AppDimensions.paddingXS),
+                                        Text(
+                                          'Cover image (2:3)',
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(color: AppColors.textHint(context)),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            )
-                          : Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.add_a_photo_outlined,
-                                    size: 40,
-                                    color: AppColors.textHint(context),
-                                  ),
-                                  const SizedBox(height: AppDimensions.paddingXS),
-                                  Text(
-                                    'Cover image (2:3)',
-                                    style: AppTextStyles.bodyMedium
-                                        .copyWith(color: AppColors.textHint(context)),
-                                  ),
-                                ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppDimensions.paddingM),
+                      TextFormField(
+                        controller: _titleEnController,
+                        decoration: const InputDecoration(
+                          labelText: 'English title',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (v) => _requiredText(v, 'Enter the English title'),
+                      ),
+                      const SizedBox(height: AppDimensions.paddingS),
+                      TextFormField(
+                        controller: _titleKhController,
+                        decoration: const InputDecoration(
+                          labelText: 'Khmer title',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (v) => _requiredText(v, 'Enter the Khmer title'),
+                      ),
+                      const SizedBox(height: AppDimensions.paddingS),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _seasonController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Season',
+                                border: OutlineInputBorder(),
                               ),
+                              validator: (v) => _requiredPositiveInt(v, 'Enter season'),
                             ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.paddingM),
-                TextFormField(
-                  controller: _titleEnController,
-                  decoration: const InputDecoration(
-                    labelText: 'English title',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => _requiredText(v, 'Enter the English title'),
-                ),
-                const SizedBox(height: AppDimensions.paddingS),
-                TextFormField(
-                  controller: _titleKhController,
-                  decoration: const InputDecoration(
-                    labelText: 'Khmer title',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => _requiredText(v, 'Enter the Khmer title'),
-                ),
-                const SizedBox(height: AppDimensions.paddingS),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _seasonController,
+                          ),
+                          const SizedBox(width: AppDimensions.paddingS),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _episodeController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Episode',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (v) => _requiredPositiveInt(v, 'Enter episode'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppDimensions.paddingS),
+                      TextFormField(
+                        controller: _totalEpisodesController,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          labelText: 'Season',
+                          labelText: 'Episodes for all seasons',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (v) => _requiredPositiveInt(v, 'Enter season'),
+                        validator: (v) => _requiredPositiveInt(v, 'Enter total episode count'),
                       ),
-                    ),
-                    const SizedBox(width: AppDimensions.paddingS),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _episodeController,
-                        keyboardType: TextInputType.number,
+                      const SizedBox(height: AppDimensions.paddingS),
+                      TextFormField(
+                        controller: _descController,
+                        maxLines: 3,
                         decoration: const InputDecoration(
-                          labelText: 'Episode',
+                          labelText: 'Description',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (v) => _requiredPositiveInt(v, 'Enter episode'),
+                        validator: (v) => _requiredText(v, 'Enter a description'),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppDimensions.paddingS),
-                TextFormField(
-                  controller: _totalEpisodesController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Episodes for all seasons',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => _requiredPositiveInt(v, 'Enter total episode count'),
-                ),
-                const SizedBox(height: AppDimensions.paddingS),
-                TextFormField(
-                  controller: _descController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (v) => _requiredText(v, 'Enter a description'),
-                ),
-                const SizedBox(height: AppDimensions.paddingL),
-                ElevatedButton(
-                  onPressed: _submitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
-                  ),
-                  child: Text(
-                    _submitting ? 'Adding...' : 'Add Entry',
-                    style: AppTextStyles.button,
+                      const SizedBox(height: AppDimensions.paddingL),
+                      ElevatedButton(
+                        onPressed: _submitting ? null : _submit,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
+                        ),
+                        child: Text(
+                          _submitting ? 'Adding...' : 'Add Entry',
+                          style: AppTextStyles.button,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
+
 class _VisibilityHint extends StatelessWidget {
   final String? uid;
 

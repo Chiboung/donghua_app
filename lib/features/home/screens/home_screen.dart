@@ -10,9 +10,6 @@ import '../models/product.dart';
 import '../services/product_service.dart';
 import 'product_detail_screen.dart';
 
-/// Home tab: browse current listings, live from Firestore. Shows every
-/// public (admin-uploaded) entry, plus the signed-in user's own
-/// private entries — see [ProductService.watchVisibleProducts].
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -21,12 +18,12 @@ class HomeScreen extends StatelessWidget {
     final uid = AuthService.instance.currentUser?.uid;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      //appBar: const GlassAppBar(title: 'Home'),
       body: Column(
         children: [
-        // ២. យក GlassAppBar មកដាក់ជា Custom Top Bar នៅក្នុង Column វិញ
-          const GlassAppBar(title: 'Home'), 
-        
+          // Glass Header ហូរឡើងទៅគ្របលើ Status Bar
+          const GlassAppBar(title: 'Home'),
+
+          // Main Scroll Content
           Expanded(
             child: StreamBuilder<List<Product>>(
               stream: ProductService.instance.watchVisibleProducts(uid),
@@ -65,8 +62,7 @@ class HomeScreen extends StatelessWidget {
                     AppDimensions.paddingM,
                     AppDimensions.paddingM,
                     AppDimensions.paddingM,
-                    // Extra room so the last row clears the floating nav pill.
-                    96,
+                    110, // លំហែសម្រាប់ Floating Nav Bar ខាងក្រោម
                   ),
                   itemCount: products.length,
                   imageAspectRatio: 2 / 3,
@@ -99,9 +95,6 @@ class _ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Fixed 9:16 ratio so every cover renders at a consistent,
-            // un-squished poster size regardless of the source image's
-            // own proportions.
             AspectRatio(
               aspectRatio: 2 / 3,
               child: ClipRRect(

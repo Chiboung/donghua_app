@@ -48,6 +48,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+    scrollbars: false,
+  ),
       debugShowCheckedModeBanner: false,
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),

@@ -1,39 +1,67 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../../../config/theme/app_colors.dart';
+import '../../../config/theme/app_dimensions.dart';
+import '../../../config/theme/app_text_styles.dart';
 
-/// Frosted-glass replacement for a plain `AppBar`.
 class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
 
-  const GlassAppBar({super.key, required this.title, this.actions});
+  const GlassAppBar({
+    super.key,
+    required this.title,
+    this.actions,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final canPop = Navigator.of(context).canPop();
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return ClipRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
+          padding: EdgeInsets.only(
+            top: topPadding,
+            left: AppDimensions.paddingS,
+            right: AppDimensions.paddingS,
+          ),
           decoration: BoxDecoration(
             color: AppColors.glassFill(context),
             border: Border(
-              bottom: BorderSide(color: AppColors.glassBorder(context)),
+              bottom: BorderSide(
+                color: AppColors.glassBorder(context),
+                width: 0.5,
+              ),
             ),
           ),
-          child: SafeArea(
-            bottom: false, // យកតែ top padding សម្រាប់ status bar
-            child: SizedBox(
-              height: kToolbarHeight,
-              child: AppBar(
-                title: Text(title),
-                centerTitle: false,
-                actions: actions,
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                foregroundColor: AppColors.onCanvas(context),
-              ),
+          child: SizedBox(
+            height: kToolbarHeight,
+            child: Row(
+              children: [
+                if (canPop)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    color: AppColors.onCanvas(context),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.h2.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: AppColors.onCanvas(context),
+                    ),
+                  ),
+                ),
+                if (actions != null) Row(children: actions!),
+              ],
             ),
           ),
         ),
@@ -41,11 +69,6 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  // កែប្រែ preferredSize ឱ្យបូកបញ្ចូល height របស់ Status Bar 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight +
-            (WidgetsBinding.instance.platformDispatcher.implicitView?.padding.top ?? 0) /
-                (WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio ?? 1),
-      );
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

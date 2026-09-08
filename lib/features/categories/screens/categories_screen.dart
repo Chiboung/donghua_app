@@ -5,7 +5,6 @@ import '../../../config/theme/app_text_styles.dart';
 import '../../../config/widgets/glass_app_bar.dart';
 import '../../../config/widgets/glass_container.dart';
 
-/// Categories tab: browse listings grouped by category.
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
@@ -22,33 +21,49 @@ class CategoriesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: const GlassAppBar(title: 'Categories'),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppDimensions.paddingM,
-          AppDimensions.paddingM,
-          AppDimensions.paddingM,
-          96,
-        ),
+      body: Column(
         children: [
-          GlassContainer(
-            padding: EdgeInsets.zero,
-            child: Column(
+          // Glass Header
+          const GlassAppBar(title: 'Categories'),
+
+          // Main Scrollable Content
+          Expanded(
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppDimensions.paddingM,
+                AppDimensions.paddingM,
+                AppDimensions.paddingM,
+                110,
+              ),
               children: [
-                for (var i = 0; i < _categories.length; i++) ...[
-                  if (i > 0) Divider(height: 1, color: AppColors.glassBorder(context)),
-                  ListTile(
-                    leading: Icon(_categories[i].icon, color: AppColors.primary),
-                    title: Text(
-                      _categories[i].name,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: AppColors.textPrimary(context),
-                      ),
-                    ),
-                    trailing: Icon(Icons.chevron_right, color: AppColors.textHint(context)),
-                    onTap: () {},
+                GlassContainer(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < _categories.length; i++) ...[
+                        if (i > 0)
+                          Divider(
+                            height: 1,
+                            color: AppColors.glassBorder(context),
+                          ),
+                        ListTile(
+                          leading: Icon(_categories[i].icon,
+                              color: AppColors.primary),
+                          title: Text(
+                            _categories[i].name,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: AppColors.textPrimary(context),
+                            ),
+                          ),
+                          trailing: Icon(Icons.chevron_right,
+                              color: AppColors.textHint(context)),
+                          onTap: () {},
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
               ],
             ),
           ),

@@ -243,59 +243,69 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       //backgroundColor: Colors.transparent,
-      appBar: GlassAppBar(
-        title: _editingImage
-            ? 'Edit Cover'
-            : _editingData
-                ? 'Edit Details'
-                : _product.titleEn,
-        actions: [
-          if (_isOwner && !_showEditButtons && !_editingImage && !_editingData)
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              tooltip: 'Edit',
-              onPressed: () => setState(() => _showEditButtons = true),
+      body: Column(
+        children: [
+          // Glass Header លូនចូល Status Bar ដោយស្វ័យប្រវត្ត
+          GlassAppBar(
+            title: _editingImage
+                ? 'Edit Cover'
+                : _editingData
+                    ? 'Edit Details'
+                    : _product.titleEn,
+            actions: [
+              if (_isOwner && !_showEditButtons && !_editingImage && !_editingData)
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: 'Edit',
+                  onPressed: () => setState(() => _showEditButtons = true),
+                ),
+              if (_showEditButtons && !_editingImage && !_editingData)
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Done',
+                  onPressed: () => setState(() => _showEditButtons = false),
+                ),
+              if (_editingImage) ...[
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Cancel',
+                  onPressed: _savingImage ? null : _cancelEditingImage,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.check),
+                  tooltip: 'Save',
+                  onPressed: _savingImage ? null : _saveImage,
+                ),
+              ],
+              if (_editingData) ...[
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Cancel',
+                  onPressed: _savingData ? null : _cancelEditingData,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.check),
+                  tooltip: 'Save',
+                  onPressed: _savingData ? null : _saveData,
+                ),
+              ],
+            ],
+          ),
+
+          // Content Area (Scrollable)
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppDimensions.paddingM,
+                AppDimensions.paddingM,
+                AppDimensions.paddingM,
+                AppDimensions.paddingXL,
+              ),
+              child: _buildDetail(context),
             ),
-          if (_showEditButtons && !_editingImage && !_editingData)
-            IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: 'Done',
-              onPressed: () => setState(() => _showEditButtons = false),
-            ),
-          if (_editingImage) ...[
-            IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: 'Cancel',
-              onPressed: _savingImage ? null : _cancelEditingImage,
-            ),
-            IconButton(
-              icon: const Icon(Icons.check),
-              tooltip: 'Save',
-              onPressed: _savingImage ? null : _saveImage,
-            ),
-          ],
-          if (_editingData) ...[
-            IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: 'Cancel',
-              onPressed: _savingData ? null : _cancelEditingData,
-            ),
-            IconButton(
-              icon: const Icon(Icons.check),
-              tooltip: 'Save',
-              onPressed: _savingData ? null : _saveData,
-            ),
-          ],
+          ),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AppDimensions.paddingM,
-          AppDimensions.paddingM,
-          AppDimensions.paddingM,
-          AppDimensions.paddingXL,
-        ),
-        child: _buildDetail(context),
       ),
     );
   }

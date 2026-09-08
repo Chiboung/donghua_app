@@ -125,7 +125,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                               const SizedBox(height: AppDimensions.paddingXS),
                               Text(
-                                'Start buying and selling in minutes.',
+                                'Start project donghua list run by zhiwenyi.',
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color: AppColors.textSecondary(context),

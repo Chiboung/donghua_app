@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: AppDimensions.paddingXS),
                         Text(
-                          'Sign in to keep buying and selling.',
+                          'Sign in to keep project donghua list run by zhiwenyi.',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textSecondary(context),
