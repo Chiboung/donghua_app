@@ -24,19 +24,19 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // យក Top Padding ពិតប្រាកដ (ទោះបីជាលើ Web/DevicePreview ក៏ទទួលបាន Safe Area Correct)
+
     final mediaQueryTop = MediaQuery.of(context).padding.top;
     final topPadding = mediaQueryTop > 0 ? mediaQueryTop : (kIsWeb ? 0.0 : 47.0);
-    final canPop = Navigator.of(context).canPop();
+    //final canPop = Navigator.of(context).canPop();
 
     Widget? effectiveLeading = leading;
-    if (effectiveLeading == null && automaticallyImplyLeading && canPop) {
-      effectiveLeading = IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        color: AppColors.textPrimary(context),
-        onPressed: () => Navigator.of(context).pop(),
-      );
-    }
+    //if (effectiveLeading == null && automaticallyImplyLeading && canPop) {
+      //effectiveLeading = IconButton(
+        // icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        // color: AppColors.textPrimary(context),
+        // onPressed: () => Navigator.of(context).pop(),
+      //);
+    //}
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
