@@ -37,12 +37,11 @@ class _ButtonNavBarScreenState extends State<ButtonNavBarScreen>
     super.dispose();
   }
 
-  // void _onAddTapped() {
-  //   _tabController.animateTo(4);
-  // }
-
   @override
   Widget build(BuildContext context) {
+    // ពិនិត្យមើលថា Keyboard កំពុងបើក ឬអត់
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -51,53 +50,44 @@ class _ButtonNavBarScreenState extends State<ButtonNavBarScreen>
             physics: const NeverScrollableScrollPhysics(), // Disable swipe gestures if desired
             children: _mainTabs,
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: HydroGlassNavBar(
-              controller: _tabController,
-              items: const [
-                HydroGlassNavItem(
-                  label: 'Home',
-                  icon: Icons.home_outlined,
-                  selectedIcon: Icons.home,
-                ),
-                HydroGlassNavItem(
-                  label: 'Categories',
-                  icon: Icons.grid_view_outlined,
-                  selectedIcon: Icons.grid_view,
-                ),
-                HydroGlassNavItem(
-                  icon: Icons.add_circle_outline,
-                  label: 'Add',
-                  selectedIcon: Icons.add_circle,
-                ),
-                HydroGlassNavItem(
-                  label: 'My List',
-                  icon: Icons.list_alt_outlined,
-                  selectedIcon: Icons.list_alt,
-                ),
-                HydroGlassNavItem(
-                  label: 'Profile',
-                  icon: Icons.person_outline,
-                  selectedIcon: Icons.person,
-                ),
-                
-              ],
-              // fabConfig: HydroGlassNavBarFABConfig(
-              //   icon: Icons.add,
-              //   size: 56,
-              //   actions: [
-              //     HydroGlassNavBarAction(
-              //       icon: Icons.add_circle,
-              //       label: 'Add Item',
-              //       onTap: _onAddTapped,
-              //     ),
-              //   ],
-              // ),
+          
+          // បង្ហាញ HydroGlassNavBar តែពេល Keyboard មិនទាន់បើក (isKeyboardOpen == false)
+          if (!isKeyboardOpen)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: HydroGlassNavBar(
+                controller: _tabController,
+                items: const [
+                  HydroGlassNavItem(
+                    label: 'Home',
+                    icon: Icons.home_outlined,
+                    selectedIcon: Icons.home,
+                  ),
+                  HydroGlassNavItem(
+                    label: 'Categories',
+                    icon: Icons.grid_view_outlined,
+                    selectedIcon: Icons.grid_view,
+                  ),
+                  HydroGlassNavItem(
+                    icon: Icons.add_circle_outline,
+                    label: 'Add',
+                    selectedIcon: Icons.add_circle,
+                  ),
+                  HydroGlassNavItem(
+                    label: 'My List',
+                    icon: Icons.list_alt_outlined,
+                    selectedIcon: Icons.list_alt,
+                  ),
+                  HydroGlassNavItem(
+                    label: 'Profile',
+                    icon: Icons.person_outline,
+                    selectedIcon: Icons.person,
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -247,11 +247,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         children: [
           // Glass Header លូនចូល Status Bar ដោយស្វ័យប្រវត្ត
           GlassAppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+              color: AppColors.textPrimary(context),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             title: _editingImage
                 ? 'Edit Cover'
                 : _editingData
                     ? 'Edit Details'
-                    : _product.titleEn,
+                    : _product.titleKh,
             actions: [
               if (_isOwner && !_showEditButtons && !_editingImage && !_editingData)
                 IconButton(

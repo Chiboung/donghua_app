@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
@@ -10,6 +11,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Widget? leading;
   final bool automaticallyImplyLeading;
+  final bool centerTitle;
 
   const GlassAppBar({
     super.key,
@@ -17,14 +19,16 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.leading,
     this.automaticallyImplyLeading = true,
+    this.centerTitle = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
+    // យក Top Padding ពិតប្រាកដ (ទោះបីជាលើ Web/DevicePreview ក៏ទទួលបាន Safe Area Correct)
+    final mediaQueryTop = MediaQuery.of(context).padding.top;
+    final topPadding = mediaQueryTop > 0 ? mediaQueryTop : (kIsWeb ? 0.0 : 47.0);
     final canPop = Navigator.of(context).canPop();
 
-    // បង្កើត Back Button ដោយស្វ័យប្រវត្តិ ប្រសិនបើអាច Pop ត្រឡប់ក្រោយបាន
     Widget? effectiveLeading = leading;
     if (effectiveLeading == null && automaticallyImplyLeading && canPop) {
       effectiveLeading = IconButton(
@@ -62,19 +66,42 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
-            child: Row(
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                if (effectiveLeading != null) effectiveLeading,
-                Expanded(
-                  child: Text(
-                    title,
-                    style: AppTextStyles.h2.copyWith(
-                      color: AppColors.textPrimary(context),
+                // Title Center
+                Positioned.fill(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                      child: Text(
+                        title,
+                        textAlign: centerTitle ? TextAlign.center : TextAlign.start,
+                        style: AppTextStyles.h2.copyWith(
+                          color: AppColors.textPrimary(context),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (actions != null) ...actions!,
+
+                // Back Button
+                if (effectiveLeading != null)
+                  Positioned(
+                    left: 0,
+                    child: effectiveLeading,
+                  ),
+
+                // Action Buttons
+                if (actions != null)
+                  Positioned(
+                    right: 0,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: actions!,
+                    ),
+                  ),
               ],
             ),
           ),
