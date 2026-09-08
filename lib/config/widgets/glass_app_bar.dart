@@ -1,66 +1,80 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../config/theme/app_colors.dart';
-import '../../../config/theme/app_dimensions.dart';
-import '../../../config/theme/app_text_styles.dart';
+import 'package:flutter/services.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_dimensions.dart';
+import '../theme/app_text_styles.dart';
 
 class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
+  final Widget? leading;
+  final bool automaticallyImplyLeading;
 
   const GlassAppBar({
     super.key,
     required this.title,
     this.actions,
+    this.leading,
+    this.automaticallyImplyLeading = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final canPop = Navigator.of(context).canPop();
     final topPadding = MediaQuery.of(context).padding.top;
+    final canPop = Navigator.of(context).canPop();
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: EdgeInsets.only(
-            top: topPadding,
-            left: AppDimensions.paddingS,
-            right: AppDimensions.paddingS,
+    // បង្កើត Back Button ដោយស្វ័យប្រវត្តិ ប្រសិនបើអាច Pop ត្រឡប់ក្រោយបាន
+    Widget? effectiveLeading = leading;
+    if (effectiveLeading == null && automaticallyImplyLeading && canPop) {
+      effectiveLeading = IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        color: AppColors.textPrimary(context),
+        onPressed: () => Navigator.of(context).pop(),
+      );
+    }
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: AppDimensions.glassBlur,
+            sigmaY: AppDimensions.glassBlur,
           ),
-          decoration: BoxDecoration(
-            color: AppColors.glassFill(context),
-            border: Border(
-              bottom: BorderSide(
-                color: AppColors.glassBorder(context),
-                width: 0.5,
+          child: Container(
+            padding: EdgeInsets.only(
+              top: topPadding,
+              left: AppDimensions.paddingS,
+              right: AppDimensions.paddingS,
+            ),
+            height: kToolbarHeight + topPadding,
+            decoration: BoxDecoration(
+              color: AppColors.glassFill(context),
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.glassBorder(context),
+                  width: AppDimensions.glassBorderWidth,
+                ),
               ),
             ),
-          ),
-          child: SizedBox(
-            height: kToolbarHeight,
             child: Row(
               children: [
-                if (canPop)
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    color: AppColors.onCanvas(context),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                const SizedBox(width: 8),
+                if (effectiveLeading != null) effectiveLeading,
                 Expanded(
                   child: Text(
                     title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.h2.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: AppColors.onCanvas(context),
+                      color: AppColors.textPrimary(context),
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (actions != null) Row(children: actions!),
+                if (actions != null) ...actions!,
               ],
             ),
           ),
@@ -70,5 +84,5 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 50);
 }

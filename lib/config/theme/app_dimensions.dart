@@ -18,4 +18,8 @@ class AppDimensions {
   static const double buttonHeight = 52;
   static const double iconSize = 24;
   static const double avatarSize = 88;
+
+  // Glassmorphic properties (បន្ថែម ២ បន្ទាត់នេះ)
+  static const double glassBlur = 16.0;
+  static const double glassBorderWidth = 0.5;
 }
