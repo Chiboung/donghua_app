@@ -147,7 +147,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                 decoration: const InputDecoration(
                                   labelText: 'Full name',
                                   prefixIcon: Icon(Icons.person_outline),
-                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (v) =>
                                     (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
@@ -161,7 +160,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                 decoration: const InputDecoration(
                                   labelText: 'Email',
                                   prefixIcon: Icon(Icons.email_outlined),
-                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (v) {
                                   if (v == null || v.trim().isEmpty) return 'Enter your email';
@@ -180,7 +178,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                 decoration: InputDecoration(
                                   labelText: 'Password',
                                   prefixIcon: const Icon(Icons.lock_outline),
-                                  border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       _obscurePassword
@@ -207,7 +204,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                 decoration: const InputDecoration(
                                   labelText: 'Confirm password',
                                   prefixIcon: Icon(Icons.lock_outline),
-                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (v) {
                                   if (v != _passwordController.text) {

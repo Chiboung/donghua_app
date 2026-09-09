@@ -128,11 +128,21 @@ class AuthService {
     }
   }
 
+  // Future<void> signOut() async {
+  //   // Signing out of Firebase alone leaves the Google session active,
+  //   // so the account picker gets skipped (and the same account
+  //   // silently reused) on the next Google sign-in attempt.
+  //   await _googleSignIn.signOut();
+  //   await _auth.signOut();
+  // }
   Future<void> signOut() async {
-    // Signing out of Firebase alone leaves the Google session active,
-    // so the account picker gets skipped (and the same account
-    // silently reused) on the next Google sign-in attempt.
-    await _googleSignIn.signOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint('Google Sign-Out exception (safe to ignore): $e');
+    }
+    
+    // Ensure Firebase Auth sign-out always runs
     await _auth.signOut();
   }
 

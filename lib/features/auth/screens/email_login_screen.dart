@@ -3,6 +3,7 @@ import '../../../config/theme/app_colors.dart';
 import '../../../config/theme/app_dimensions.dart';
 import '../../../config/theme/app_text_styles.dart';
 import '../../../config/widgets/app_background.dart';
+import '../../../config/widgets/app_text_button.dart';
 import '../../../config/widgets/glass_container.dart';
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
@@ -133,7 +134,6 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                 decoration: const InputDecoration(
                                   labelText: 'Email',
                                   prefixIcon: Icon(Icons.email_outlined),
-                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (v) {
                                   if (v == null || v.trim().isEmpty) return 'Enter your email';
@@ -153,7 +153,6 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                 decoration: InputDecoration(
                                   labelText: 'Password',
                                   prefixIcon: const Icon(Icons.lock_outline),
-                                  border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       _obscurePassword
@@ -172,9 +171,9 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                               ),
                               Align(
                                 alignment: Alignment.centerRight,
-                                child: TextButton(
+                                child: AppTextButton(
                                   onPressed: _submitting ? null : _forgotPassword,
-                                  child: const Text('Forgot password?'),
+                                  label: 'Forgot password?',
                                 ),
                               ),
                               const SizedBox(height: AppDimensions.paddingS),

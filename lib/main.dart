@@ -75,9 +75,16 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: const AuthGate(),
       onGenerateRoute: AppRouter.onGenerateRoute,
-      builder: EasyLoading.init(
-        builder: (context, child) => AppResponsiveBound(child: child),
-      ),
+      // builder: EasyLoading.init(
+      //   builder: (context, child) => AppResponsiveBound(child: child),
+      // ),
+      builder: (context, child) {
+        // Pass child through EasyLoading first
+        final easyLoadingBuilder = EasyLoading.init();
+        return AppResponsiveBound(
+          child: easyLoadingBuilder(context, child),
+        );
+      },
     );
   }
 }

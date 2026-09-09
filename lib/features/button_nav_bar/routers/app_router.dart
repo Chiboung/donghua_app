@@ -4,6 +4,9 @@ import '../screens/button_nav_bar_screen.dart';
 import '../../home/screens/home_screen.dart';
 import '../../categories/screens/categories_screen.dart';
 import '../../add/screens/add_screen.dart';
+import '../../items/screens/add_item_screen.dart';
+import '../../menu/screens/about_screen.dart';
+import '../../menu/screens/menu_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../auth/screens/auth_gate.dart';
 import '../../auth/screens/login_screen.dart';
@@ -20,7 +23,10 @@ class AppRoutes {
   static const String home = '/home';
   static const String categories = '/categories';
   static const String sell = '/sell';
+  static const String addItem = '/add-item';
   static const String cart = '/cart';
+  static const String menu = '/menu';
+  static const String about = '/about';
   static const String profile = '/profile';
 }
 
@@ -50,8 +56,14 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const CategoriesScreen());
       case AppRoutes.sell:
         return MaterialPageRoute(builder: (_) => const AddScreen());
+      case AppRoutes.addItem:
+        return MaterialPageRoute(builder: (_) => const AddItemScreen());
       case AppRoutes.cart:
         return MaterialPageRoute(builder: (_) => const MyListScreen());
+      case AppRoutes.menu:
+        return MaterialPageRoute(builder: (_) => const MenuScreen());
+      case AppRoutes.about:
+        return MaterialPageRoute(builder: (_) => const AboutScreen());
       case AppRoutes.profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       default:

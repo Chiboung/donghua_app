@@ -24,7 +24,7 @@ class _MyListScreenState extends State<MyListScreen> {
     final uid = AuthService.instance.currentUser?.uid;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      //backgroundColor: Colors.transparent,
       body: Column(
         children: [
           GlassAppBar(

@@ -55,7 +55,20 @@ class GlassContainer extends StatelessWidget {
                 ],
               ),
             ),
-            child: child,
+            // A local Material, so any InkWell/ListTile tap ripple inside
+            // this card finds THIS Material — which lives inside the
+            // ClipRRect above — instead of falling through to an ancestor
+            // Material outside the clip (e.g. the Scaffold's), which would
+            // paint the ripple unclipped past our rounded corners. No
+            // clipBehavior here: the outer ClipRRect already bounds
+            // anything painted in this subtree (ink included), and giving
+            // this Material its own clip would also cut off legitimate
+            // overflow — like a TextFormField's floating label, which is
+            // meant to poke slightly above its own box.
+            child: Material(
+              type: MaterialType.transparency,
+              child: child,
+            ),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../config/theme/app_colors.dart';
 import '../../../config/theme/app_dimensions.dart';
 import '../../../config/theme/app_text_styles.dart';
+import '../../../config/widgets/app_text_button.dart';
 import '../../../config/widgets/glass_app_bar.dart';
 import '../../../config/widgets/glass_container.dart';
 import '../../../core/services/cloudinary_service.dart';
@@ -465,8 +466,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
               ),
               const SizedBox(height: AppDimensions.paddingXS),
-              Text(
-                product.description.isNotEmpty
+              _ExpandableDescription(
+                text: product.description.isNotEmpty
                     ? product.description
                     : 'No description provided.',
                 style: AppTextStyles.bodyMedium
@@ -538,7 +539,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               controller: _titleEnController,
               decoration: const InputDecoration(
                 labelText: 'English title',
-                border: OutlineInputBorder(),
               ),
               validator: (v) => _requiredText(v, 'Enter the English title'),
             ),
@@ -547,7 +547,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               controller: _titleKhController,
               decoration: const InputDecoration(
                 labelText: 'Khmer title',
-                border: OutlineInputBorder(),
               ),
               validator: (v) => _requiredText(v, 'Enter the Khmer title'),
             ),
@@ -560,7 +559,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       labelText: 'Season',
-                      border: OutlineInputBorder(),
                     ),
                     validator: (v) => _requiredPositiveInt(v, 'Enter season'),
                   ),
@@ -572,7 +570,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       labelText: 'Episode',
-                      border: OutlineInputBorder(),
                     ),
                     validator: (v) => _requiredPositiveInt(v, 'Enter episode'),
                   ),
@@ -585,17 +582,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: 'Episodes for all seasons',
-                border: OutlineInputBorder(),
               ),
               validator: (v) => _requiredPositiveInt(v, 'Enter total episode count'),
             ),
             const SizedBox(height: AppDimensions.paddingS),
             TextFormField(
               controller: _descController,
-              maxLines: 3,
-              decoration: const InputDecoration(
+              minLines: 3,
+              maxLines: 100,
+              textAlignVertical: TextAlignVertical.top,
+              decoration: InputDecoration(
                 labelText: 'Description',
-                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
               ),
               validator: (v) => _requiredText(v, 'Enter a description'),
             ),
@@ -606,9 +604,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: OutlinedButton(
                     onPressed: _savingData ? null : _cancelEditingData,
                     style: OutlinedButton.styleFrom(
+                      backgroundColor: AppColors.glassFill(context), // Same dark glass background
+                      foregroundColor: AppColors.textSecondary(context), // White text
+                      side: BorderSide(color: AppColors.glassBorder(context)), // Matching border
                       minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
+                      shape: StadiumBorder(), // Perfect pill rounded shape like in image
                     ),
-                    child: const Text('Cancel'),
+                    child:  Text('Cancel',style: AppTextStyles.button.copyWith(
+                        color: AppColors.textSecondary(context),
+                      ),),
+                    
                   ),
                 ),
                 const SizedBox(width: AppDimensions.paddingS),
@@ -616,11 +621,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: ElevatedButton(
                     onPressed: _savingData ? null : _saveData,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.glassFill(context), // Same dark glass background
+                      foregroundColor: AppColors.textSecondary(context), // White text
+                      elevation: 0,
+                      side: BorderSide(color: AppColors.glassBorder(context)), // Matching border
                       minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
+                      shape: const StadiumBorder(), // Perfect pill rounded shape
                     ),
                     child: Text(
                       _savingData ? 'Saving...' : 'Save',
-                      style: AppTextStyles.button,
+                      style: AppTextStyles.button.copyWith(
+                        color: AppColors.textSecondary(context),
+                      ),
                     ),
                   ),
                 ),
@@ -638,7 +650,7 @@ class _Chip extends StatelessWidget {
   final IconData? icon;
   final Color? color;
 
-  const _Chip({required this.label, this.icon, this.color});
+  const _Chip({super.key, required this.label, this.icon, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -662,6 +674,67 @@ class _Chip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Description text that collapses to a few lines and reveals a
+/// "Show more" / "Show less" text button once the full text actually
+/// overflows that many lines at the available width. Short descriptions
+/// render as plain text with no toggle at all.
+class _ExpandableDescription extends StatefulWidget {
+  final String text;
+  final TextStyle style;
+  final int collapsedMaxLines;
+
+  const _ExpandableDescription({
+    super.key,
+    required this.text,
+    required this.style,
+    this.collapsedMaxLines = 4,
+  });
+
+  @override
+  State<_ExpandableDescription> createState() => _ExpandableDescriptionState();
+}
+
+class _ExpandableDescriptionState extends State<_ExpandableDescription> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: TextSpan(text: widget.text, style: widget.style),
+          maxLines: widget.collapsedMaxLines,
+          textDirection: Directionality.of(context),
+        )..layout(maxWidth: constraints.maxWidth);
+        final canCollapse = painter.didExceedMaxLines;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.text,
+              style: widget.style,
+              maxLines: _expanded || !canCollapse ? null : widget.collapsedMaxLines,
+              overflow: _expanded || !canCollapse
+                  ? TextOverflow.visible
+                  : TextOverflow.ellipsis,
+            ),
+            if (canCollapse)
+              Padding(
+                padding: const EdgeInsets.only(top: AppDimensions.paddingXS),
+                child: AppTextButton.pill(
+                  onPressed: () => setState(() => _expanded = !_expanded),
+                  icon: _expanded ? Icons.expand_less : Icons.expand_more,
+                  label: _expanded ? 'Show less' : 'Show more',
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

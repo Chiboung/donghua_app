@@ -10,6 +10,7 @@ import '../../../config/widgets/glass_container.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../auth/services/auth_service.dart';
 import '../../auth/services/user_service.dart';
+import '../../auth/widgets/visibility_hint.dart';
 import '../../home/models/product.dart';
 import '../../home/services/product_service.dart';
 
@@ -34,6 +35,12 @@ class _AddScreenState extends State<AddScreen> {
   XFile? _pickedImage;
   Uint8List? _pickedImageBytes;
   bool _submitting = false;
+
+  /// Admin's chosen visibility for the entry being created. Null means
+  /// "use the role default" (public for an admin, private for a
+  /// regular user) — set once they tap the visibility hint to override
+  /// it for this entry.
+  bool? _isPublicOverride;
 
   @override
   void dispose() {
@@ -90,6 +97,7 @@ class _AddScreenState extends State<AddScreen> {
 
       EasyLoading.show(status: 'Publishing entry...');
       final role = await UserService.instance.fetchRole(user.uid);
+      final bool isPublic = role == UserRole.admin;
       final product = Product(
         id: '',
         titleEn: _titleEnController.text.trim(),
@@ -104,6 +112,7 @@ class _AddScreenState extends State<AddScreen> {
             ? user.displayName!
             : (user.email ?? 'Uploader'),
         uploaderRole: role.toString(),
+        //isPublic : isPublic,
       );
       await ProductService.instance.addProduct(product);
 
@@ -120,6 +129,7 @@ class _AddScreenState extends State<AddScreen> {
       setState(() {
         _pickedImage = null;
         _pickedImageBytes = null;
+        _isPublicOverride = null;
       });
     } catch (e) {
       EasyLoading.dismiss();
@@ -146,7 +156,7 @@ class _AddScreenState extends State<AddScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(), // លាក់ Keyboard ពេល Tap លើដងខ្លួន Screen
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        //backgroundColor: Colors.transparent,
         body: Column(
           children: [
             // Glass Header 
@@ -168,7 +178,11 @@ class _AddScreenState extends State<AddScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _VisibilityHint(uid: AuthService.instance.currentUser?.uid),
+                        VisibilityHint(
+                          uid: AuthService.instance.currentUser?.uid,
+                          isPublicOverride: _isPublicOverride,
+                          onChanged: (v) => setState(() => _isPublicOverride = v),
+                        ),
                         const SizedBox(height: AppDimensions.paddingS),
                         GestureDetector(
                           onTap: _submitting ? null : _pickImage,
@@ -217,8 +231,10 @@ class _AddScreenState extends State<AddScreen> {
                                           const SizedBox(height: AppDimensions.paddingXS),
                                           Text(
                                             'Cover image (2:3)',
-                                            style: AppTextStyles.bodyMedium
-                                                .copyWith(color: AppColors.textHint(context)),
+                                            style: AppTextStyles.bodyMedium.copyWith(
+                                              color: AppColors.textHint(context),
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -229,18 +245,16 @@ class _AddScreenState extends State<AddScreen> {
                         const SizedBox(height: AppDimensions.paddingM),
                         TextFormField(
                           controller: _titleEnController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'English title',
-                            border: OutlineInputBorder(),
                           ),
                           validator: (v) => _requiredText(v, 'Enter the English title'),
                         ),
                         const SizedBox(height: AppDimensions.paddingS),
                         TextFormField(
                           controller: _titleKhController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Khmer title',
-                            border: OutlineInputBorder(),
                           ),
                           validator: (v) => _requiredText(v, 'Enter the Khmer title'),
                         ),
@@ -251,9 +265,8 @@ class _AddScreenState extends State<AddScreen> {
                               child: TextFormField(
                                 controller: _seasonController,
                                 keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Season',
-                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (v) => _requiredPositiveInt(v, 'Enter season'),
                               ),
@@ -263,9 +276,8 @@ class _AddScreenState extends State<AddScreen> {
                               child: TextFormField(
                                 controller: _episodeController,
                                 keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Episode',
-                                  border: OutlineInputBorder(),
                                 ),
                                 validator: (v) => _requiredPositiveInt(v, 'Enter episode'),
                               ),
@@ -276,19 +288,20 @@ class _AddScreenState extends State<AddScreen> {
                         TextFormField(
                           controller: _totalEpisodesController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Episodes for all seasons',
-                            border: OutlineInputBorder(),
                           ),
                           validator: (v) => _requiredPositiveInt(v, 'Enter total episode count'),
                         ),
                         const SizedBox(height: AppDimensions.paddingS),
                         TextFormField(
                           controller: _descController,
-                          maxLines: 3,
-                          decoration: const InputDecoration(
+                          minLines: 3,
+                          maxLines: 8,
+                          textAlignVertical: TextAlignVertical.top,
+                          decoration: InputDecoration(
                             labelText: 'Description',
-                            border: OutlineInputBorder(),
+                            alignLabelWithHint: true,
                           ),
                           validator: (v) => _requiredText(v, 'Enter a description'),
                         ),
@@ -312,56 +325,6 @@ class _AddScreenState extends State<AddScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _VisibilityHint extends StatelessWidget {
-  final String? uid;
-
-  const _VisibilityHint({required this.uid});
-
-  @override
-  Widget build(BuildContext context) {
-    if (uid == null) return const SizedBox.shrink();
-
-    return StreamBuilder<UserRole>(
-      stream: UserService.instance.watchRole(uid!),
-      builder: (context, snapshot) {
-        final role = snapshot.data ?? UserRole.user;
-        final isAdmin = role == UserRole.admin;
-        return Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingS,
-            vertical: AppDimensions.paddingXS,
-          ),
-          decoration: BoxDecoration(
-            color: (isAdmin ? AppColors.success : AppColors.primary)
-                .withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusS),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                isAdmin ? Icons.public : Icons.lock_outline,
-                size: 16,
-                color: isAdmin ? AppColors.success : AppColors.primary,
-              ),
-              const SizedBox(width: AppDimensions.paddingXS),
-              Expanded(
-                child: Text(
-                  isAdmin
-                      ? 'Visible to everyone once added.'
-                      : 'Only visible to you once added.',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: isAdmin ? AppColors.success : AppColors.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

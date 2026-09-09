@@ -3,7 +3,7 @@ import 'package:hydro_glass_nav_bar/hydro_glass_nav_bar.dart';
 import '../../home/screens/home_screen.dart';
 import '../../categories/screens/categories_screen.dart';
 import '../../mylist/screens/mylist_screen.dart';
-import '../../profile/screens/profile_screen.dart';
+import '../../menu/screens/menu_screen.dart';
 import '../../add/screens/add_screen.dart';
 
 class ButtonNavBarScreen extends StatefulWidget {
@@ -22,7 +22,7 @@ class _ButtonNavBarScreenState extends State<ButtonNavBarScreen>
     CategoriesScreen(), // Index 1
     AddScreen(),        // Index 2
     MyListScreen(),     // Index 3
-    ProfileScreen(),    // Index 4
+    MenuScreen(),       // Index 4
   ];
 
   @override
@@ -81,9 +81,9 @@ class _ButtonNavBarScreenState extends State<ButtonNavBarScreen>
                     selectedIcon: Icons.list_alt,
                   ),
                   HydroGlassNavItem(
-                    label: 'Profile',
-                    icon: Icons.person_outline,
-                    selectedIcon: Icons.person,
+                    label: 'Menu',
+                    icon: Icons.menu_outlined,
+                    selectedIcon: Icons.menu,
                   ),
                 ],
               ),

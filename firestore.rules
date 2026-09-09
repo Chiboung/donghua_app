@@ -45,5 +45,23 @@ service cloud.firestore {
       allow delete: if request.auth != null
         && resource.data.uploaderId == request.auth.uid;
     }
+    match /items/{itemId} {
+      // Anyone signed in can create an item, but only as themselves,
+      // and uploaderRole must match their real role — no spoofing.
+      allow create: if request.auth != null
+        && request.resource.data.uploaderId == request.auth.uid
+        && request.resource.data.uploaderRole ==
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+
+      // Public (admin-uploaded) items are visible to everyone;
+      // private items are visible only to their uploader.
+      allow read: if resource.data.uploaderRole == 'admin'
+        || (request.auth != null && resource.data.uploaderId == request.auth.uid);
+
+      // Only the uploader (or an admin) can edit/delete their item.
+      allow update, delete: if request.auth != null
+        && (resource.data.uploaderId == request.auth.uid
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
   }
 }

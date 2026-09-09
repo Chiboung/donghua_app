@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../config/theme/app_colors.dart';
 import '../../../config/theme/app_dimensions.dart';
 import '../../../config/theme/app_text_styles.dart';
+import '../../../config/widgets/app_text_button.dart';
 import '../../../config/widgets/glass_app_bar.dart';
 import '../../../config/widgets/glass_container.dart';
 import '../../auth/services/auth_service.dart';
@@ -10,31 +11,33 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   Future<void> _confirmLogOut(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Log out?'),
-        content: const Text('You\'ll need to sign in again to buy or sell.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Log out', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
-    );
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Log out?'),
+      content: const Text("You'll need to sign in again to donghua."),
+      actions: [
+        AppTextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          label: 'Cancel',
+        ),
+        AppTextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          label: 'Log out',
+          color: AppColors.error,
+        ),
+      ],
+    ),
+  );
 
-    if (confirmed == true) {
-      await AuthService.instance.signOut();
-      if (context.mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    }
+  if (confirmed == true) {
+    // 1. Pop all routes on top of AuthGate FIRST
+    Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+
+    // 2. Perform sign out to trigger AuthGate rebuild
+    await AuthService.instance.signOut();
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +48,6 @@ class ProfileScreen extends StatelessWidget {
     final email = user?.email ?? '';
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
       body: Column(
         children: [
           const GlassAppBar(title: 'Profile'),
@@ -64,8 +66,8 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: AppDimensions.avatarSize / 2,
-                        backgroundColor: AppColors.primary,
-                        child: const Icon(Icons.person, size: 40, color: Colors.white),
+                        backgroundColor: AppColors.textSecondary(context),
+                        child: Icon(Icons.person, size: 50, color: AppColors.textPrimary(context)),
                       ),
                       const SizedBox(height: AppDimensions.paddingM),
                       Text(
@@ -92,14 +94,17 @@ class ProfileScreen extends StatelessWidget {
                       const _ProfileTile(icon: Icons.favorite_border, label: 'Favorites'),
                       Divider(height: 1, color: AppColors.glassBorder(context)),
                       const _ProfileTile(icon: Icons.settings_outlined, label: 'Settings'),
-                      Divider(height: 1, color: AppColors.glassBorder(context)),
-                      _ProfileTile(
-                        icon: Icons.logout,
-                        label: 'Log out',
-                        color: AppColors.error,
-                        onTap: () => _confirmLogOut(context),
-                      ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.paddingM),
+                GlassContainer(
+                  padding: EdgeInsets.zero,
+                  child: _ProfileTile(
+                    icon: Icons.logout,
+                    label: 'Log out',
+                    color: AppColors.error,
+                    onTap: () => _confirmLogOut(context),
                   ),
                 ),
               ],
@@ -131,7 +136,7 @@ class _ProfileTile extends StatelessWidget {
       trailing: color == null
           ? Icon(Icons.chevron_right, color: AppColors.textHint(context))
           : null,
-      onTap: onTap ?? () {},
+      onTap: onTap,
     );
   }
 }
